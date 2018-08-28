@@ -61,27 +61,46 @@ Theta2_grad = zeros(size(Theta2));
 %               the regularization separately and then add them to Theta1_grad
 %               and Theta2_grad from Part 2.
 %
+% --------- Non-Regularised Feedforward Algorithm--------------
+%% Convert the y vector into a matrix
+%y1 = [1:num_labels]==y;
+y1 = eye(num_labels)(y,:);  % Best performing of the lot
+%% Feedforward Algorithm
+a1 = [ones(m,1) X];
+z2 = a1*Theta1';
+a2 = sigmoid(z2);
+a2 = [ones(m,1) a2];
+z3 = a2*Theta2';
+hTheta = sigmoid(z3); % Final hypothesis
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+% Calculation of cost
+J_nonreg = (-1/m).*(y1.*log(hTheta) + (1.-y1).*log(1.-hTheta));
+J = sum(J_nonreg,2);  % summation along the rows
+J = sum(J, 1);  % summation along the column
 
 % -------------------------------------------------------------
+% --------- Regularised Feedforward Algorithm------------------
+J_reg1 = Theta1(:, 2:end).^2;
+J_reg1 = sum(J_reg1,2);
+J_reg1 = sum(J_reg1,1);
+J_reg2 = Theta2(:, 2:end).^2;
+J_reg2 = sum(J_reg2,2);
+J_reg2 = sum(J_reg2,1);
+J = J + (lambda/(2*m))*(J_reg1+J_reg2);
+% -------------------------------------------------------------
+% ------------- Backpropagation Algorithm ---------------------
+d3 = hTheta .- y1;
+d2 = (d3*(Theta2(:, 2:end))).*(sigmoidGradient(z2));
 
+D2 = a2'*d3;
+D1 = a1'*d2;
+Theta1_grad = Theta1_grad + (1/m).*(D1');
+Theta2_grad = Theta2_grad + (1/m).*(D2');
+% -------------------------------------------------------------
+% -------- Backpropagation Algorithm - Regularised ------------
+Theta1_grad(:,2:end) = Theta1_grad(:,2:end) + (lambda/m).*(Theta1(:, 2:end));
+Theta2_grad(:,2:end) = Theta2_grad(:,2:end) + (lambda/m).*(Theta2(:, 2:end));
+% -------------------------------------------------------------
 % =========================================================================
 
 % Unroll gradients
