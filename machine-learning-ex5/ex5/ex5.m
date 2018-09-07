@@ -218,3 +218,5 @@ end
 
 fprintf('Program paused. Press enter to continue.\n');
 pause;
+
+%% ========= Part 9: Averaging the random selected examples ===========
